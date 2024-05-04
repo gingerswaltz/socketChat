@@ -1,0 +1,104 @@
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# Native
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+
+*.icloud
+
+# Игнорировать временные файлы, созданные Visual Studio
+.vscode/
+.vs/
+_UpgradeReport_Files/
+Backup*/
+UpgradeLog*.XML
+UpgradeLog*.htm
+*_UpgradeReport_Files/
+
+# Игнорировать папки и файлы, связанные с NuGet пакетами
+packages/
+*.nupkg
+debug/
+release/
+
+# Игнорировать папки и файлы, связанные с билдом и компиляцией
+[Bb]in/
+[Oo]bj/
+
+# Игнорировать файлы проектов и решений
+*.suo
+*.user
+*.sln.docstates
+*.sln.cache
+
+# Игнорировать файлы журналов и отладки
+*.log
+*.log.*
+*.pidb
+
+# Игнорировать файлы конфигурации IIS Express
+config/applicationhost.config
+
+# Игнорировать файлы Visual Studio Code
+.vscode/
+
+# Игнорировать файлы с настройками ReSharper
+_ReSharper.*/
+
+# Игнорировать файлы и папки, связанные с Test Explorer
+[Tt]est[Rr]esult*/
+[Bb]in/
+[Oo]bj/
+
+# Игнорировать файлы журналов Visual Studio
+*.user
+
+# Игнорировать файлы с настройками Rider
+.idea/
+
+# Игнорировать файлы с настройками Visual Studio
+.vscode/
+.vscodeignore
+
+# Игнорировать файлы с настройками JetBrains Rider
+.idea/
+
+# Игнорировать файлы, создаваемые Visual Studio Code для настройки рабочей области
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+
+# Игнорировать файлы с настройками Visual Studio для CodeLens
+.vscode/codelens.json
+/CourseNetwork/itProgerReact
