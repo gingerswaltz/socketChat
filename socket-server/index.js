@@ -24,7 +24,7 @@ app.use(cors({ origin: "*" }));
 app.use(route);
 
 // Подключаемся к базе данных MongoDB
-mongoose.connect("mongodb://localhost:27017/chatApp", {});
+mongoose.connect("mongodb://localhost:48050/chatApp", {});
 
 // Создаем HTTP-сервер на основе приложения Express
 const server = http.createServer(app);
