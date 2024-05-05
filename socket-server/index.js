@@ -3,6 +3,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const winston = require("winston");
+const mongoose = require("mongoose");
 
 const app = express();
 const route = require("./route");
@@ -25,6 +26,16 @@ const logger = winston.createLogger({
   ],
 });
 
+// Подключение к базе данных MongoDB
+mongoose.connect("mongodb://localhost:27017/chatApp", {});
+
+// Создание модели сообщений
+const Message = mongoose.model("Message", {
+  user: String,
+  room: String,
+  message: String,
+});
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
@@ -33,8 +44,8 @@ const io = new Server(server, {
   },
 });
 
-io.on("connection", (socket) => {
-  socket.on("join", ({ name, room }) => {
+io.on("connection", async (socket) => {
+  socket.on("join", async ({ name, room }) => {
     socket.join(room);
 
     const { user, isExist } = addUser({ name, room });
@@ -55,15 +66,44 @@ io.on("connection", (socket) => {
       data: { users: getRoomUsers(user.room) },
     });
 
+    // Отправка истории сообщений всем участникам комнаты
+    try {
+      const messageHistory = await Message.find({ room: user.room }).exec();
+      io.to(user.room).emit("messageHistory", {
+        data: { messages: messageHistory },
+      });
+    } catch (error) {
+      console.error("Error fetching message history:", error);
+    }
+
+    // Сохранение события подключения нового пользователя в базе данных
+    const newMessage = new Message({
+      user: "Admin",
+      room: user.room,
+      message: `${user.name} has joined`,
+    });
+    await newMessage.save();
+
     // Логгирование события подключения нового пользователя
     logger.info(`${user.name} has joined room ${user.room}`);
   });
 
-  socket.on("sendMessage", ({ message, params }) => {
+  socket.on("sendMessage", async ({ message, params }) => {
     const user = findUser(params);
 
     if (user) {
-      io.to(user.room).emit("message", { data: { user, message } });
+      const { room, name } = user;
+
+      // Создание нового сообщения и добавление его в базу данных
+      const newMessage = new Message({
+        user: name,
+        room: room,
+        message: message,
+      });
+      await newMessage.save();
+
+      // Отправка сообщения всем клиентам в комнате, кроме отправителя
+      io.to(room).emit("message", { user: name, message });
 
       // Логгирование отправки сообщения
       logger.info(`Message sent by ${user.name}: ${message}`);
@@ -82,7 +122,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("leftRoom", ({ params }) => {
+  socket.on("leftRoom", async ({ params }) => {
     const user = removeUser(params);
 
     if (user) {
@@ -95,6 +135,14 @@ io.on("connection", (socket) => {
       io.to(room).emit("room", {
         data: { users: getRoomUsers(room) },
       });
+
+      // Сохранение события выхода пользователя из комнаты в базе данных
+      const newMessage = new Message({
+        user: "Admin",
+        room,
+        message: `${name} has left`,
+      });
+      await newMessage.save();
 
       // Логгирование выхода пользователя из комнаты
       logger.info(`${name} has left room ${room}`);

@@ -23,6 +23,10 @@ const Chat = ({ navigation, route }) => {
       setMessages((prevMessages) => [...prevMessages, data]);
     });
 
+    socket.on("messageHistory", (data) => {
+      setMessages(data.data.messages);
+    });
+
     socket.on("room", (data) => {
       const usersArray = data.data.users;
       setUsers(usersArray.length);
@@ -66,7 +70,7 @@ const Chat = ({ navigation, route }) => {
       <ScrollView style={styles.messagesContainer}>
         {messages.map((msg, index) => (
           <Text key={index} style={styles.message}>
-            {msg.data.user.name}: {msg.data.message}
+            {msg.user}: {msg.message}
           </Text>
         ))}
       </ScrollView>
