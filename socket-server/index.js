@@ -165,6 +165,6 @@ io.on("connection", async (socket) => {
 });
 
 // Запускаем сервер на указанном порту и хосте
-server.listen(80, "213.183.59.239", () => {
+server.listen(8080, "213.183.59.239", () => {
   console.log("Server is running");
 });
