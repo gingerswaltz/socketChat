@@ -121,7 +121,7 @@ io.on("connection", async (socket) => {
       socket.emit("message", { data: { rooms } });
 
       // Логируем отправку списка комнат
-      logger.info(`Rooms list: ${JSON.stringify(rooms)}`);
+      //logger.info(`Rooms list: ${JSON.stringify(rooms)}`);
     } catch (error) {
       console.error("Error fetching rooms list:", error);
     }
@@ -160,11 +160,11 @@ io.on("connection", async (socket) => {
 
   // Обработчик события отключения клиента
   socket.on("disconnect", () => {
-    console.log("Disconnect");
+    //console.log("Disconnect");
   });
 });
 
 // Запускаем сервер на указанном порту и хосте
-server.listen(80, "192.168.0.12", () => {
+server.listen(80, "213.183.59.239", () => {
   console.log("Server is running");
 });

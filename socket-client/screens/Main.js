@@ -22,7 +22,7 @@ const Main = ({ navigation }) => {
   // Эффект для установления соединения с сервером при загрузке компонента
   useEffect(() => {
     // Подключение к серверу сокетов
-    const socket = io.connect("http://192.168.0.12");
+    const socket = io.connect("http://213.183.59.239");
 
     // Обработка ошибки при подключении к серверу
     socket.on("connect_error", (error) => {
@@ -69,7 +69,7 @@ const Main = ({ navigation }) => {
     // Установка видимости модального окна
     setModalVisible(isModalVisible);
     // Установка нового соединения с сервером сокетов
-    const socket = io.connect("http://192.168.0.12");
+    const socket = io.connect("http://213.183.59.239");
 
     // Обработка ошибки при подключении к серверу
     socket.on("connect_error", (error) => {

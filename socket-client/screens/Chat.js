@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import io from "socket.io-client";
 
-const socket = io.connect("http://192.168.0.12");
+const socket = io.connect("http://213.183.59.239");
 
 const Chat = ({ navigation, route }) => {
   const [message, setMessage] = useState("");
