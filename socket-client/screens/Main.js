@@ -17,6 +17,7 @@ const Main = ({ navigation }) => {
   const [room, setRoom] = useState("");
   const [roomsList, setRoomsList] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(""); // Добавлено состояние для поискового запроса
 
   useEffect(() => {
     socket.on("message", ({ data }) => {
@@ -57,6 +58,7 @@ const Main = ({ navigation }) => {
       socket.disconnect();
     };
   };
+
   return (
     <View
       style={[styles.container, Platform.OS === "ios" && styles.containerIOS]}
@@ -99,15 +101,28 @@ const Main = ({ navigation }) => {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalHeading}>Select a Room</Text>
-            {roomsList.map((roomItem, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.roomItem}
-                onPress={() => handleRoomSelect(roomItem)}
-              >
-                <Text>{roomItem}</Text>
-              </TouchableOpacity>
-            ))}
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search rooms..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              autoCompleteType="off"
+              autoCapitalize="none"
+            />
+            {/* Фильтрация и рендеринг списка комнат на основе введенного запроса */}
+            {roomsList
+              .filter((roomItem) =>
+                roomItem.toLowerCase().includes(searchQuery.toLowerCase())
+              )
+              .map((filteredRoom, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.roomItem}
+                  onPress={() => handleRoomSelect(filteredRoom)}
+                >
+                  <Text>{filteredRoom}</Text>
+                </TouchableOpacity>
+              ))}
             <TouchableOpacity
               style={styles.closeButton}
               onPress={() => setModalVisible(false)}
@@ -215,6 +230,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "center",
+  },
+  searchInput: {
+    width: "100%",
+    height: 40,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    backgroundColor: "#fff",
+    fontSize: 16,
+    color: "#333",
+    ...Platform.select({
+      ios: {
+        backgroundColor: "#444444",
+      },
+    }),
   },
 });
 

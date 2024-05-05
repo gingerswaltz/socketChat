@@ -59,6 +59,14 @@ const Chat = ({ navigation, route }) => {
       {item.user}: {item.message}
     </Text>
   );
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("beforeRemove", (e) => {
+      // Отправить событие leftRoom при нажатии на кнопку возврата
+      socket.emit("leftRoom", { params: route.params });
+    });
+
+    return unsubscribe;
+  }, [navigation]); // Добавляем зависимость navigation
 
   return (
     <KeyboardAvoidingView

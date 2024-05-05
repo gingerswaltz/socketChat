@@ -2,23 +2,14 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
-const winston = require("winston");
 const mongoose = require("mongoose");
 
 const app = express();
 const route = require("./route");
 const { addUser, findUser, getRoomUsers, removeUser } = require("./users");
-const { Message } = require("./utils");
+const { Message, logger } = require("./utils");
 app.use(cors({ origin: "*" }));
 app.use(route);
-
-// Настройка логгера
-const logger = winston.createLogger({
-  transports: [
-    new winston.transports.Console(),
-    new winston.transports.File({ filename: "server.log" }),
-  ],
-});
 
 // Подключение к базе данных MongoDB
 mongoose.connect("mongodb://localhost:27017/chatApp", {});
