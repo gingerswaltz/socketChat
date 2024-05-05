@@ -110,15 +110,18 @@ io.on("connection", async (socket) => {
     }
   });
 
-  socket.on("listRoom", () => {
-    const rooms = getActiveRooms();
+  socket.on("listRoom", async () => {
+    try {
+      // Получение списка комнат из базы данных (уникальные значения)
+      const rooms = await Message.distinct("room").exec();
 
-    if (rooms.length > 0) {
-      // Отправляем список комнат только пользователю, отправившему запрос
+      // Отправка списка комнат клиенту
       socket.emit("message", { data: { rooms } });
 
-      // Логгирование отправки сообщения
+      // Логгирование отправки списка комнат
       logger.info(`Rooms list: ${JSON.stringify(rooms)}`);
+    } catch (error) {
+      console.error("Error fetching rooms list:", error);
     }
   });
 

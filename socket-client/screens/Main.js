@@ -45,13 +45,25 @@ const Main = ({ navigation }) => {
     setModalVisible(false);
   };
 
+  const updateListRoom = (isModalVisible) => {
+    setModalVisible(isModalVisible);
+    socket.emit("listRoom");
+    socket.on("message", ({ data }) => {
+      if (data.rooms) {
+        setRoomsList(data.rooms);
+      }
+    });
+    return () => {
+      socket.disconnect();
+    };
+  };
   return (
     <View
       style={[styles.container, Platform.OS === "ios" && styles.containerIOS]}
     >
       <TouchableOpacity
         style={styles.selectButton}
-        onPress={() => setModalVisible(true)}
+        onPress={() => updateListRoom(true)}
       >
         <Text style={styles.selectButtonText}>Select a Room</Text>
       </TouchableOpacity>
