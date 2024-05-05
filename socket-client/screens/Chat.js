@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import io from "socket.io-client";
 
-const socket = io.connect("http://213.183.59.239");
+const socket = io.connect("http://213.183.59.239:8080");
 
 const Chat = ({ navigation, route }) => {
   const [message, setMessage] = useState("");
@@ -86,7 +86,7 @@ const Chat = ({ navigation, route }) => {
         <Text style={styles.roomName}>{route.params.room}</Text>
         <Text style={styles.userCount}>{users} users in this room</Text>
         <TouchableOpacity onPress={leftRoom}>
-          <Text style={styles.leaveRoom}>Leave the room</Text>
+          <Text style={styles.leaveRoom}>Exit</Text>
         </TouchableOpacity>
       </View>
       <FlatList
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   },
   leaveRoom: {
     fontSize: 16,
-    color: "blue",
+    color: "red",
   },
   messagesContainer: {
     flex: 1,

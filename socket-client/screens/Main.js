@@ -22,12 +22,13 @@ const Main = ({ navigation }) => {
   // Эффект для установления соединения с сервером при загрузке компонента
   useEffect(() => {
     // Подключение к серверу сокетов
-    const socket = io.connect("http://213.183.59.239");
+    const socket = io.connect("http://213.183.59.239:8080");
 
     // Обработка ошибки при подключении к серверу
     socket.on("connect_error", (error) => {
       // Показать модальное окно с сообщением об ошибке при неудачном подключении
       setErrorModalVisible(true);
+      console.log(error);
     });
 
     // Получение списка комнат при получении сообщения от сервера
@@ -69,7 +70,7 @@ const Main = ({ navigation }) => {
     // Установка видимости модального окна
     setModalVisible(isModalVisible);
     // Установка нового соединения с сервером сокетов
-    const socket = io.connect("http://213.183.59.239");
+    const socket = io.connect("http://213.183.59.239:8080");
 
     // Обработка ошибки при подключении к серверу
     socket.on("connect_error", (error) => {
