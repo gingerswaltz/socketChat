@@ -7,19 +7,26 @@ import {
   Modal,
   StyleSheet,
   Platform,
+  Alert, // Импорт Alert для отображения уведомления об ошибке
 } from "react-native";
 import io from "socket.io-client";
-
-const socket = io.connect("http://192.168.0.12");
 
 const Main = ({ navigation }) => {
   const [name, setName] = useState("");
   const [room, setRoom] = useState("");
   const [roomsList, setRoomsList] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(""); // Добавлено состояние для поискового запроса
+  const [searchQuery, setSearchQuery] = useState("");
+  const [errorModalVisible, setErrorModalVisible] = useState(false); // Состояние для модального окна с ошибкой
 
   useEffect(() => {
+    const socket = io.connect("http://192.168.0.12");
+
+    socket.on("connect_error", (error) => {
+      // Показать модальное окно с сообщением об ошибке при неудачном подключении
+      setErrorModalVisible(true);
+    });
+
     socket.on("message", ({ data }) => {
       if (data.rooms) {
         setRoomsList(data.rooms);
@@ -48,12 +55,21 @@ const Main = ({ navigation }) => {
 
   const updateListRoom = (isModalVisible) => {
     setModalVisible(isModalVisible);
+    const socket = io.connect("http://192.168.0.12"); // Устанавливаем новое соединение
+
+    socket.on("connect_error", (error) => {
+      // Показать модальное окно с сообщением об ошибке при неудачном подключении
+      setErrorModalVisible(true);
+    });
+
     socket.emit("listRoom");
+
     socket.on("message", ({ data }) => {
       if (data.rooms) {
         setRoomsList(data.rooms);
       }
     });
+
     return () => {
       socket.disconnect();
     };
@@ -91,7 +107,6 @@ const Main = ({ navigation }) => {
         <Text style={styles.buttonText}>Sign In</Text>
       </TouchableOpacity>
 
-      {/* Модальное окно для отображения списка комнат */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -109,7 +124,6 @@ const Main = ({ navigation }) => {
               autoCompleteType="off"
               autoCapitalize="none"
             />
-            {/* Фильтрация и рендеринг списка комнат на основе введенного запроса */}
             {roomsList
               .filter((roomItem) =>
                 roomItem.toLowerCase().includes(searchQuery.toLowerCase())
@@ -132,6 +146,29 @@ const Main = ({ navigation }) => {
           </View>
         </View>
       </Modal>
+
+      {/* Модальное окно с сообщением об ошибке */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={errorModalVisible}
+        onRequestClose={() => setErrorModalVisible(false)}
+      >
+        <View style={styles.errorModalContainer}>
+          <View style={styles.errorModalContent}>
+            <Text style={styles.errorModalText}>
+              Connection to the server failed. Please check your internet
+              connection and try again.
+            </Text>
+            <TouchableOpacity
+              style={styles.errorModalButton}
+              onPress={() => setErrorModalVisible(false)}
+            >
+              <Text style={styles.errorModalButtonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -145,7 +182,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
   },
   containerIOS: {
-    marginBottom: 190, // Дополнительное расстояние margin снизу для iOS
+    marginBottom: 190,
   },
   heading: {
     fontSize: 32,
@@ -232,21 +269,40 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   searchInput: {
-    width: "100%",
-    height: 40,
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 10,
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 20,
+  },
+  errorModalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  errorModalContent: {
     backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    elevation: 5,
+  },
+  errorModalText: {
     fontSize: 16,
-    color: "#333",
-    ...Platform.select({
-      ios: {
-        backgroundColor: "#444444",
-      },
-    }),
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  errorModalButton: {
+    backgroundColor: "blue",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+  },
+  errorModalButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
   },
 });
 

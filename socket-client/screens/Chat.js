@@ -8,6 +8,7 @@ import {
   Platform,
   FlatList,
   StyleSheet,
+  Modal, // Импорт Modal для отображения модального окна
 } from "react-native";
 import io from "socket.io-client";
 
@@ -17,6 +18,7 @@ const Chat = ({ navigation, route }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState(0);
+  const [errorModalVisible, setErrorModalVisible] = useState(false); // Состояние для модального окна с ошибкой
 
   useEffect(() => {
     socket.on("message", (data) => {
@@ -33,6 +35,11 @@ const Chat = ({ navigation, route }) => {
     });
 
     socket.emit("join", { name: route.params.name, room: route.params.room });
+
+    // Обработка ошибки при подключении к сокету
+    socket.on("connect_error", (error) => {
+      setErrorModalVisible(true);
+    });
 
     return () => {
       socket.off("message");
@@ -59,14 +66,6 @@ const Chat = ({ navigation, route }) => {
       {item.user}: {item.message}
     </Text>
   );
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("beforeRemove", (e) => {
-      // Отправить событие leftRoom при нажатии на кнопку возврата
-      socket.emit("leftRoom", { params: route.params });
-    });
-
-    return unsubscribe;
-  }, [navigation]); // Добавляем зависимость navigation
 
   return (
     <KeyboardAvoidingView
@@ -101,6 +100,29 @@ const Chat = ({ navigation, route }) => {
           <Text style={styles.sendButtonText}>Send a message</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Модальное окно с сообщением об ошибке */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={errorModalVisible}
+        onRequestClose={() => setErrorModalVisible(false)}
+      >
+        <View style={styles.errorModalContainer}>
+          <View style={styles.errorModalContent}>
+            <Text style={styles.errorModalText}>
+              Connection to the server failed. Please check your internet
+              connection and try again.
+            </Text>
+            <TouchableOpacity
+              style={styles.errorModalButton}
+              onPress={() => setErrorModalVisible(false)}
+            >
+              <Text style={styles.errorModalButtonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 };
@@ -160,6 +182,36 @@ const styles = StyleSheet.create({
   sendButtonText: {
     color: "#fff",
     fontSize: 16,
+    textAlign: "center",
+  },
+  // Стили для модального окна с ошибкой
+  errorModalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  errorModalContent: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    elevation: 5,
+  },
+  errorModalText: {
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  errorModalButton: {
+    backgroundColor: "blue",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+  },
+  errorModalButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
     textAlign: "center",
   },
 });
