@@ -7,14 +7,8 @@ const mongoose = require("mongoose");
 
 const app = express();
 const route = require("./route");
-const {
-  addUser,
-  findUser,
-  getRoomUsers,
-  removeUser,
-  getActiveRooms,
-} = require("./users");
-
+const { addUser, findUser, getRoomUsers, removeUser } = require("./users");
+const { Message } = require("./utils");
 app.use(cors({ origin: "*" }));
 app.use(route);
 
@@ -28,13 +22,6 @@ const logger = winston.createLogger({
 
 // Подключение к базе данных MongoDB
 mongoose.connect("mongodb://localhost:27017/chatApp", {});
-
-// Создание модели сообщений
-const Message = mongoose.model("Message", {
-  user: String,
-  room: String,
-  message: String,
-});
 
 const server = http.createServer(app);
 const io = new Server(server, {
