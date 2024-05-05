@@ -4,10 +4,10 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  ScrollView,
-  StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  FlatList,
+  StyleSheet,
 } from "react-native";
 import io from "socket.io-client";
 
@@ -54,6 +54,12 @@ const Chat = ({ navigation, route }) => {
     navigation.goBack();
   };
 
+  const renderMessage = ({ item }) => (
+    <Text style={styles.message}>
+      {item.user}: {item.message}
+    </Text>
+  );
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -67,13 +73,12 @@ const Chat = ({ navigation, route }) => {
           <Text style={styles.leaveRoom}>Leave the room</Text>
         </TouchableOpacity>
       </View>
-      <ScrollView style={styles.messagesContainer}>
-        {messages.map((msg, index) => (
-          <Text key={index} style={styles.message}>
-            {msg.user}: {msg.message}
-          </Text>
-        ))}
-      </ScrollView>
+      <FlatList
+        style={styles.messagesContainer}
+        data={messages}
+        renderItem={renderMessage}
+        keyExtractor={(item, index) => index.toString()}
+      />
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
