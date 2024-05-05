@@ -21,26 +21,31 @@ const Chat = ({ navigation, route }) => {
   const [errorModalVisible, setErrorModalVisible] = useState(false); // Состояние для модального окна с ошибкой
 
   useEffect(() => {
+    // При каждом новом сообщении с сервера, добавляем его в список сообщений
     socket.on("message", (data) => {
       setMessages((prevMessages) => [...prevMessages, data]);
     });
 
+    // При получении истории сообщений с сервера, устанавливаем их как текущие сообщения чата
     socket.on("messageHistory", (data) => {
       setMessages(data.data.messages);
     });
 
+    // При обновлении информации о комнате (количестве пользователей), обновляем состояние
     socket.on("room", (data) => {
       const usersArray = data.data.users;
       setUsers(usersArray.length);
     });
 
+    // Отправляем запрос на присоединение к комнате с указанным именем пользователя и названием комнаты
     socket.emit("join", { name: route.params.name, room: route.params.room });
 
-    // Обработка ошибки при подключении к сокету
+    // Обработка ошибки при подключении к сокету: если произошла ошибка подключения, показываем модальное окно с ошибкой
     socket.on("connect_error", (error) => {
       setErrorModalVisible(true);
     });
 
+    // Отключаем прослушивание событий "message" и "room" при размонтировании компонента
     return () => {
       socket.off("message");
       socket.off("room");
@@ -48,20 +53,24 @@ const Chat = ({ navigation, route }) => {
   }, []);
 
   const handleChange = (text) => {
+    // Обновляем состояние сообщения при его изменении
     setMessage(text);
   };
 
   const handleSubmit = () => {
+    // Отправляем сообщение на сервер и очищаем поле ввода
     socket.emit("sendMessage", { message, params: route.params });
     setMessage("");
   };
 
   const leftRoom = () => {
+    // При выходе из комнаты отправляем соответствующее событие на сервер и возвращаемся на предыдущий экран
     socket.emit("leftRoom", { params: route.params });
     navigation.goBack();
   };
 
   const renderMessage = ({ item }) => (
+    // Функция для отображения отдельного сообщения в списке
     <Text style={styles.message}>
       {item.user}: {item.message}
     </Text>

@@ -7,11 +7,11 @@ import {
   Modal,
   StyleSheet,
   Platform,
-  Alert, // Импорт Alert для отображения уведомления об ошибке
 } from "react-native";
 import io from "socket.io-client";
 
 const Main = ({ navigation }) => {
+  // Состояния для имени, названия комнаты, списка комнат, видимости модального окна и строки поиска
   const [name, setName] = useState("");
   const [room, setRoom] = useState("");
   const [roomsList, setRoomsList] = useState([]);
@@ -19,62 +19,79 @@ const Main = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [errorModalVisible, setErrorModalVisible] = useState(false); // Состояние для модального окна с ошибкой
 
+  // Эффект для установления соединения с сервером при загрузке компонента
   useEffect(() => {
+    // Подключение к серверу сокетов
     const socket = io.connect("http://192.168.0.12");
 
+    // Обработка ошибки при подключении к серверу
     socket.on("connect_error", (error) => {
       // Показать модальное окно с сообщением об ошибке при неудачном подключении
       setErrorModalVisible(true);
     });
 
+    // Получение списка комнат при получении сообщения от сервера
     socket.on("message", ({ data }) => {
       if (data.rooms) {
         setRoomsList(data.rooms);
       }
     });
 
+    // Отправка запроса на получение списка комнат
     socket.emit("listRoom");
 
+    // Отключение соединения с сервером при размонтировании компонента
     return () => {
       socket.disconnect();
     };
   }, []);
 
+  // Обработка нажатия кнопки "Sign In"
   const handlePress = () => {
+    // Проверка, что имя пользователя и название комнаты не пустые
     if (!name || !room) return;
+    // Переход на экран чата с указанным именем пользователя и названием комнаты
     navigation.navigate("Chat", {
       name: name,
       room: room,
     });
   };
 
+  // Обработка выбора комнаты из списка
   const handleRoomSelect = (selectedRoom) => {
+    // Установка выбранной комнаты и скрытие модального окна
     setRoom(selectedRoom);
     setModalVisible(false);
   };
 
+  // Функция для обновления списка комнат и отображения модального окна
   const updateListRoom = (isModalVisible) => {
+    // Установка видимости модального окна
     setModalVisible(isModalVisible);
-    const socket = io.connect("http://192.168.0.12"); // Устанавливаем новое соединение
+    // Установка нового соединения с сервером сокетов
+    const socket = io.connect("http://192.168.0.12");
 
+    // Обработка ошибки при подключении к серверу
     socket.on("connect_error", (error) => {
       // Показать модальное окно с сообщением об ошибке при неудачном подключении
       setErrorModalVisible(true);
     });
 
+    // Отправка запроса на получение списка комнат
     socket.emit("listRoom");
 
+    // Получение списка комнат при получении сообщения от сервера
     socket.on("message", ({ data }) => {
       if (data.rooms) {
         setRoomsList(data.rooms);
       }
     });
 
+    // Отключение соединения с сервером при размонтировании компонента
     return () => {
       socket.disconnect();
     };
   };
-
   return (
     <View
       style={[styles.container, Platform.OS === "ios" && styles.containerIOS]}
